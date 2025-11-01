@@ -1,2 +1,22 @@
 # EventEaseApp
 EventEase App for as final project for Blazor for Front-End development on Coursera by Microsoft  
+(5 pts) Did you create a GitHub repository for your project?
+Yes.
+(5 pts) Did you use Copilot to generate the foundational Event Card component with fields and two-way data binding?
+Yes.
+(5 pts) Did you implement and debug routing functionality?
+Yes.
+(5 pts) Did you optimize the app for performance, addressing issues like input validation and routing errors?
+Yes.
+(5 pts) Did you implement advanced features, such as a Registration Form with validation, state management for user sessions, and an Attendance Tracker?
+Yes.
+(5pts) Did you include a brief summary of how Copilot assisted in each step of the development process?
+Copilot helped me from the very beggining to the end of building this projects.
+The steps that Copilot helped me:
+1. Builed me a blazzor application
+2. Generate all of the blazor pages and components
+3. Implement the logic that I need
+4. Resolved the issue that I got in browser console
+5. Optimize it for debugging
+6. Implement another additional requirements
+7. Prepared and optimized for production
