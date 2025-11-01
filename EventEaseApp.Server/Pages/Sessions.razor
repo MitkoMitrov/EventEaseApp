@@ -1,0 +1,63 @@
+@page "/sessions"
+@using EventEaseApp.Server.Data
+@using Microsoft.AspNetCore.Components.Forms
+@inject UserSessionService SessionService
+
+@code {
+    private IEnumerable<UserSession> sessions = Array.Empty<UserSession>();
+    private string newUserId = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        sessions = SessionService.GetActiveSessions();
+    }
+
+    private void Refresh()
+    {
+        sessions = SessionService.GetActiveSessions();
+        StateHasChanged();
+    }
+
+    private void CreateSession()
+    {
+        if (!string.IsNullOrWhiteSpace(newUserId))
+        {
+            SessionService.CreateSession(newUserId);
+            newUserId = string.Empty;
+            Refresh();
+        }
+    }
+
+    private void EndSession(string sessionId)
+    {
+        SessionService.EndSession(sessionId);
+        Refresh();
+    }
+}
+
+<h2>Active User Sessions</h2>
+
+<div>
+    <label>Create session for user id</label>
+    <InputText @bind-Value="newUserId" />
+    <button class="btn" @onclick="CreateSession">Create</button>
+</div>
+
+<table class="table">
+    <thead>
+        <tr><th>User</th><th>Session Id</th><th>Created</th><th>Last Activity</th><th>Active</th><th></th></tr>
+    </thead>
+    <tbody>
+        @foreach (var s in sessions)
+        {
+            <tr>
+                <td>@s.UserId</td>
+                <td>@s.SessionId</td>
+                <td>@s.CreatedAt.ToString("g")</td>
+                <td>@s.LastActivity.ToString("g")</td>
+                <td>@s.IsActive</td>
+                <td><button class="btn" @onclick="() => EndSession(s.SessionId)">End</button></td>
+            </tr>
+        }
+    </tbody>
+</table>

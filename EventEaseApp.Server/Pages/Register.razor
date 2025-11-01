@@ -1,0 +1,99 @@
+@page "/events/{Id:int}/register"
+@using EventEaseApp.Server.Data
+@using System.ComponentModel.DataAnnotations
+@inject EventService Events
+@inject AttendanceService AttendanceService
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Event? ev;
+    private string? errorMessage;
+
+    private class RegistrationModel
+    {
+        [Required(ErrorMessage = "Name is required")]
+        public string Name { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Email is required")]
+        [EmailAddress(ErrorMessage = "Invalid email format")]
+        public string Email { get; set; } = string.Empty;
+    }
+
+    private RegistrationModel model = new();
+    private bool Submitted { get; set; }
+
+    protected override void OnInitialized()
+    {
+        try
+        {
+            ev = Events.GetById(Id);
+            if (ev == null)
+            {
+                errorMessage = "Event not found.";
+            }
+        }
+        catch (Exception)
+        {
+            errorMessage = "Error loading event details.";
+        }
+    }
+
+    private void HandleValidSubmit()
+    {
+        try
+        {
+            // Register attendance using AttendanceService (demo)
+            if (model != null)
+            {
+                var userId = model.Email; // using email as user id in demo
+                var attendance = AttendanceService.RegisterAttendance(Id, userId);
+                Submitted = true;
+                errorMessage = null;
+            }
+        }
+        catch (Exception)
+        {
+            errorMessage = "Error processing registration.";
+            StateHasChanged();
+        }
+    }
+}
+
+@if (errorMessage != null)
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+else if (ev == null)
+{
+    <p>Event not found.</p>
+}
+else if (Submitted)
+{
+    <h3>Thank you, @model.Name!</h3>
+    <p>Your registration for <strong>@ev.Name</strong> on @ev.Date.ToString("D") has been recorded (demo only).</p>
+    <a class="btn" href="/events/@Id">Back to event</a>
+}
+else
+{
+    <h2>Register for @ev.Name</h2>
+
+    <EditForm Model="@model" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        
+        <div>
+            <label>Name</label>
+            <InputText @bind-Value="model.Name" class="input" />
+            <ValidationMessage For="@(() => model.Name)" />
+        </div>
+        <div>
+            <label>Email</label>
+            <InputText @bind-Value="model.Email" class="input" />
+            <ValidationMessage For="@(() => model.Email)" />
+        </div>
+        <button type="submit" class="btn">Submit</button>
+        <a class="btn" href="/events/@Id">Cancel</a>
+    </EditForm>
+}

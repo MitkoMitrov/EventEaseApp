@@ -1,0 +1,50 @@
+@page "/events/{Id:int}"
+@using EventEaseApp.Server.Data
+@inject EventService Events
+@implements IDisposable
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Event? ev;
+    private bool isConnected = false;
+
+    protected override void OnInitialized()
+    {
+        ev = Events.GetById(Id);
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            isConnected = true;
+            StateHasChanged();
+        }
+    }
+
+    public void Dispose()
+    {
+        isConnected = false;
+    }
+}
+
+@if (!isConnected)
+{
+    <div>Connecting to server...</div>
+}
+else if (ev == null)
+{
+    <p>Event not found.</p>
+}
+else
+{
+    <h2>@ev.Name</h2>
+    <div><strong>Date:</strong> @ev.Date.ToString("f")</div>
+    <div><strong>Location:</strong> @ev.Location</div>
+    <p>@ev.Description</p>
+
+    <a href="/events/@ev.Id/register" class="btn">Register</a>
+}
+

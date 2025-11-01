@@ -1,0 +1,43 @@
+@using EventEaseApp.Server.Data
+
+<div class="event-card">
+    <div class="event-header">
+        <h3>@Event.Name</h3>
+        <span class="event-date">@Event.Date.ToString("MMMM dd, yyyy")</span>
+    </div>
+    <div class="event-location">
+        <span>@Event.Location</span>
+    </div>
+    <div class="event-description">
+        <p>@Event.Description</p>
+    </div>
+    <div class="event-actions">
+        <button class="btn btn-primary" @onclick="OnViewDetails">View Details</button>
+        <button class="btn btn-success" @onclick="OnRegister">Register</button>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Event Event { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback<Event> OnEventSelected { get; set; }
+
+    private async Task OnViewDetails()
+    {
+        if (OnEventSelected.HasDelegate)
+        {
+            await OnEventSelected.InvokeAsync(Event);
+        }
+    }
+
+    private async Task OnRegister()
+    {
+        // Navigate to registration page
+        NavigationManager.NavigateTo($"/events/{Event.Id}/register");
+    }
+
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = default!;
+}

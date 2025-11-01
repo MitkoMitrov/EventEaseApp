@@ -1,0 +1,112 @@
+@page "/attendance"
+@page "/attendance/{EventId:int}"
+@using EventEaseApp.Server.Data
+@using Microsoft.AspNetCore.Components.Forms
+@inject EventService Events
+@inject AttendanceService AttendanceService
+
+@code {
+    [Parameter]
+    public int? EventId { get; set; }
+
+    private IEnumerable<Event> events = Array.Empty<Event>();
+    private IEnumerable<EventEaseApp.Server.Data.Attendance> attendances = Array.Empty<EventEaseApp.Server.Data.Attendance>();
+    private string newUserEmail = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        events = Events.GetAll();
+        if (EventId.HasValue)
+        {
+            attendances = AttendanceService.GetEventAttendances(EventId.Value);
+        }
+    }
+
+    private void Refresh()
+    {
+        events = Events.GetAll();
+        if (EventId.HasValue)
+            attendances = AttendanceService.GetEventAttendances(EventId.Value);
+        StateHasChanged();
+    }
+
+    private void RegisterNewUser()
+    {
+        if (!string.IsNullOrWhiteSpace(newUserEmail) && EventId.HasValue)
+        {
+            AttendanceService.RegisterAttendance(EventId.Value, newUserEmail);
+            newUserEmail = string.Empty;
+            Refresh();
+        }
+    }
+
+    private void CheckIn(int attendanceId)
+    {
+        AttendanceService.UpdateStatus(attendanceId, AttendanceStatus.CheckedIn);
+        Refresh();
+    }
+}
+
+<h2>Attendance</h2>
+
+@if (!EventId.HasValue)
+{
+    <p>Events and attendee counts:</p>
+    <table class="table">
+        <thead>
+            <tr><th>Event</th><th>Date</th><th>Attendees</th><th></th></tr>
+        </thead>
+        <tbody>
+            @foreach (var e in events)
+            {
+                <tr>
+                    <td>@e.Name</td>
+                    <td>@e.Date.ToString("d")</td>
+                    <td>@AttendanceService.GetEventAttendeeCount(e.Id)</td>
+                    <td><a class="btn" href="/attendance/@e.Id">Manage</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    var ev = Events.GetById(EventId.Value);
+    if (ev == null)
+    {
+        <p>Event not found.</p>
+    }
+    else
+    {
+        <h3>Attendees for @ev.Name (@ev.Date:d)</h3>
+        <div>
+            <label>Register a new user (email)</label>
+            <InputText @bind-Value="newUserEmail" />
+            <button class="btn" @onclick="RegisterNewUser">Register</button>
+            <a class="btn" href="/attendance">Back</a>
+        </div>
+
+        <table class="table">
+            <thead>
+                <tr><th>User</th><th>Status</th><th>Registered At</th><th>Checked In</th><th></th></tr>
+            </thead>
+            <tbody>
+                @foreach (var a in attendances)
+                {
+                    <tr>
+                        <td>@a.UserId</td>
+                        <td>@a.Status</td>
+                        <td>@a.RegisteredAt.ToString("g")</td>
+                        <td>@(a.CheckedInAt?.ToString("g") ?? "-")</td>
+                        <td>
+                            @if (a.Status != AttendanceStatus.CheckedIn)
+                            {
+                                <button class="btn" @onclick="() => CheckIn(a.Id)">Check In</button>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}

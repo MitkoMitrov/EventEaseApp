@@ -1,0 +1,31 @@
+@page "/events"
+@using EventEaseApp.Server.Data
+@inject EventService EventService
+@inject NavigationManager NavigationManager
+
+<div class="events-page">
+    <h2>Upcoming Events</h2>
+
+    @if (!EventService.GetAll().Any())
+    {
+        <p>No events available.</p>
+    }
+    else
+    {
+        <div class="events-grid">
+            @foreach (var ev in EventService.GetAll())
+            {
+                <EventCard 
+                    Event="@ev" 
+                    OnEventSelected="@(e => NavigateToDetails(e))" />
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private void NavigateToDetails(Event ev)
+    {
+        NavigationManager.NavigateTo($"/events/{ev.Id}");
+    }
+}

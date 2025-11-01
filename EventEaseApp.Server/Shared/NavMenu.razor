@@ -1,0 +1,41 @@
+<nav class="nav-menu">
+    <div class="nav-brand">
+        <NavLink href="/" Match="NavLinkMatch.All">
+            <h1>EventEase</h1>
+        </NavLink>
+    </div>
+    <ul>
+        <li>
+            <NavLink href="/" Match="NavLinkMatch.All">
+                <span class="oi oi-home" aria-hidden="true"></span> Home
+            </NavLink>
+        </li>
+        <li>
+            <NavLink href="/events">
+                <span class="oi oi-calendar" aria-hidden="true"></span> Events
+            </NavLink>
+        </li>
+        <li>
+            <NavLink href="/attendance">
+                <span class="oi oi-people" aria-hidden="true"></span> Attendance
+            </NavLink>
+        </li>
+        <li>
+            <NavLink href="/sessions">
+                <span class="oi oi-lock-locked" aria-hidden="true"></span> Sessions
+            </NavLink>
+        </li>
+        @* Add more navigation items as needed *@
+    </ul>
+</nav>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}
